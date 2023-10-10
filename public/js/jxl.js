@@ -44,7 +44,7 @@
   }
 
   async function decode(img, isCSS, isSource) {
-    const jxlSrc = img.dataset.jxlSrc = isCSS ? getComputedStyle(img).backgroundImage.slice(5, -2) : isSource ? img.srcset : img.currentSrc;
+    const jxlSrc = img.dataset.jxlSrc = isCSS ? getComputedStyle(img).backgroundImage.slice(5, -2) : isSource ? img.srcset : img.getAttribute("data-src");
     if (!isCSS && !isSource) {
       img.srcset = '';
       img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='; // blank 1x1 image
@@ -62,7 +62,7 @@
     }
     const res = await fetch(jxlSrc);
     const image = await res.arrayBuffer();
-    workers[jxlSrc] = new Worker('jxl_dec.js');
+    workers[jxlSrc] = new Worker('/js/jxl_dec.js');
     workers[jxlSrc].postMessage({jxlSrc, image});
     workers[jxlSrc].addEventListener('message', m => m.data.imgData && requestAnimationFrame(() => imgDataToDataURL(img, m.data.imgData, isCSS, isSource)));
   }

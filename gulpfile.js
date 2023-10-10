@@ -57,7 +57,9 @@ gulp.task('copy-files', () => {
 			'public/*.*',
 			'public/img/**',
 			'public/webfonts/*',
-			'public/js/*.min.js'
+			'public/js/*.min.js',
+			'public/js/jxl_dec.js',
+			'public/js/*.wasm'
 		], {
 			base: 'public'
 		})
