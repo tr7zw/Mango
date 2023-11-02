@@ -349,6 +349,40 @@ const bulkProgress = (action, el) => {
     });
 };
 
+const bulkDelete = (el) => {
+  const tid = $(el).attr('data-id');
+  const ids = selectedIDs();
+  const url = `${base_url}api/admin/bulk_delete/${tid}`;
+  $.ajax({
+    type: 'DELETE',
+    url,
+    contentType: 'application/json',
+    dataType: 'json',
+    data: JSON.stringify({
+      ids,
+    }),
+  })
+    .done((data) => {
+      if (data.error) {
+        alert(
+          'danger',
+          `Failed to delete entries. Error: ${data.error}`,
+        );
+        return;
+      }
+      location.reload();
+    })
+    .fail((jqXHR, status) => {
+      alert(
+        'danger',
+        `Failed to delete entries. Error: [${jqXHR.status}] ${jqXHR.statusText}`,
+      );
+    })
+    .always(() => {
+      deselectAll();
+    });
+};
+
 const tagsComponent = () => {
   return {
     isAdmin: false,

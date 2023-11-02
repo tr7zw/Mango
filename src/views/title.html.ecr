@@ -8,9 +8,14 @@
         <a class="uk-icon uk-margin-right" uk-tooltip="title: Mark selected as read" href="" @click.prevent="bulkProgress('read', $el)">
           <i class="fas fa-check-circle"></i>
         </a>
-        <a class="uk-icon" uk-tooltip="title: Mark selected as unread" href="" @click.prevent="bulkProgress('unread', $el)">
+        <a class="uk-icon uk-margin-right" uk-tooltip="title: Mark selected as unread" href="" @click.prevent="bulkProgress('unread', $el)">
           <i class="fas fa-times-circle"></i>
         </a>
+        <% if is_admin %>
+        <a class="uk-icon" uk-tooltip="Delete selected" href="" @click.prevent="bulkDelete($el)">
+          <i class="fas fa-trash"></i>
+        </a>
+        <% end %>
       </div>
       <div class="uk-text-right">
         <a @click="selectAll()" uk-tooltip="title: Select all"><i class="fas fa-check-double uk-margin-small-right"></i></a>
