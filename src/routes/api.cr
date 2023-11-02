@@ -533,6 +533,33 @@ struct APIRouter
       end
     end
 
+    Koa.describe "Deletes a title with `tid`"
+    Koa.tags ["admin", "library"]
+    Koa.path "tid", desc: "Title ID"
+    Koa.path "eid", desc: "Entry ID"
+    Koa.response 200, schema: "result"
+    delete "/api/admin/title/delete/:tid/:eid" do |env|
+      begin
+        tid = env.params.url["tid"]
+        eid = env.params.url["eid"]
+        title = Library.default.get_title tid
+        raise "Title ID `#{tid}` not found" if title.nil?
+        entry = title.get_entry eid
+        raise "Entry ID `#{eid}` of `#{title.title}` not found" if entry.nil?
+        entry.delete_file
+        Logger.info "Deleted Entry ID `#{eid}` of `#{title.title}`"
+        Library.default.scan
+      rescue e
+        Logger.error e
+        send_json env, {
+          "success" => false,
+          "error"   => e.message,
+        }.to_json
+      else
+        send_json env, {"success" => true}.to_json
+      end
+    end
+
     Koa.describe "Updates the reading progress of an entry or the whole title for the current user", <<-MD
       When `eid` is provided, sets the reading progress of the entry to `page`.
 

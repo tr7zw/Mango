@@ -14,3 +14,4 @@ public/img/*.svg
 public/js/*.min.js
 public/css/*.css
 public/webfonts
+testBuildRun.bat

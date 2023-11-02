@@ -68,6 +68,26 @@ function showModal(
     `${base_url}api/download/${titleID}/${entryID}`,
   );
 
+  $('#modal-delete-btn').click(function () {
+    let url = `${base_url}api/admin/title/delete/${titleID}/${entryID}`;
+    $.ajax({
+      method: 'DELETE',
+      url,
+      dataType: 'json',
+    })
+      .done((data) => {
+        if (data.success) {
+          location.reload();
+        } else {
+          error = data.error;
+          alert('danger', error);
+        }
+      })
+      .fail((jqXHR, status) => {
+        alert('danger', `Error: [${jqXHR.status}] ${jqXHR.statusText}`);
+      });
+  });
+
   UIkit.modal($('#modal')).show();
 }
 

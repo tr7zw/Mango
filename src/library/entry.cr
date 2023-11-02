@@ -66,6 +66,15 @@ abstract class Entry
   @[YAML::Field(ignore: true)]
   @sort_title : String?
 
+  def delete_file : Bool
+    if File.exists?(path)
+      File.delete(path)
+      return true
+    else
+      return false
+    end
+  end
+
   def sort_title
     sort_title_cached = @sort_title
     return sort_title_cached if sort_title_cached

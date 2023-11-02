@@ -11,6 +11,9 @@
             <% end %>
           <% end %>
           <a id="modal-download-btn" class="uk-icon-button" uk-icon="icon:download"></a>
+          <% if is_admin %>
+            <a id="modal-delete-btn" class="uk-icon-button" uk-icon="icon:trash"></a>
+          <% end %>
         </h3>
       </div>
       <p class="uk-text-meta uk-margin-remove-bottom break-word" id="path-text"></p>
