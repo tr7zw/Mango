@@ -1,4 +1,5 @@
 require "image_size"
+require "file_utils"
 
 private def node_has_key(node : YAML::Nodes::Mapping, key : String)
   node.nodes
@@ -69,6 +70,17 @@ abstract class Entry
   def delete_file : Bool
     if File.exists?(path)
       File.delete(path)
+      return true
+    else
+      return false
+    end
+  end
+
+  def move_file_or_folder(destination_path : String) : Bool
+    if File.exists?(path)
+      filename = File.basename(path)
+      destination = File.join(destination_path, filename)
+      FileUtils.mv(path, destination)
       return true
     else
       return false

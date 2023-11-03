@@ -140,7 +140,7 @@ class Library
   end
 
   def build_json(*, slim = false, depth = -1, sort_context = nil,
-                 percentage = false)
+                 percentage = false, skip_entries = false)
     _titles = if sort_context
                 sorted_titles sort_context[:username],
                   sort_context[:opt]
@@ -154,7 +154,7 @@ class Library
           json.array do
             _titles.each do |title|
               json.raw title.build_json(slim: slim, depth: depth,
-                sort_context: sort_context, percentage: percentage)
+                sort_context: sort_context, percentage: percentage, skip_entries: skip_entries)
             end
           end
         end

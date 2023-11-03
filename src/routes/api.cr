@@ -348,6 +348,32 @@ struct APIRouter
       }.to_json
     end
 
+    Koa.describe "Returns the entire library with all titles", <<-MD
+    The titles will be sorted by the default sorting method for the logged-in user.
+    - Supply the `slim` query parameter to strip away "display_name", "cover_url", and "mtime" from the returned object to speed up the loading time
+    - Supply the `dpeth` query parameter to control the depth of nested titles to return.
+    - Supply the `percentage` query parameter to include the reading progress
+      - When `depth` is 1, returns the requested title and sub-titles/entries one level in it
+      - When `depth` is 0, returns the requested title without its sub-titles/entries
+      - When `depth` is N, returns the requested title and sub-titles/entries N levels in it
+      - When `depth` is negative, returns the requested title and all sub-titles/entries in it
+    MD
+    Koa.response 200, schema: {
+      "dir"              => String,
+      "titles"           => ["title"],
+    }
+    Koa.tag "library"
+    get "/api/titles" do |env|
+
+      send_json env, Library.default.build_json(slim: true, skip_entries: true)
+    rescue e
+      Logger.error e
+      send_json env, {
+        "success" => false,
+        "error"   => e.message,
+      }.to_json
+    end
+
     Koa.describe "Returns the continue reading entries"
     Koa.response 200, schema: {
       "success"           => Bool,
@@ -548,6 +574,37 @@ struct APIRouter
         raise "Entry ID `#{eid}` of `#{title.title}` not found" if entry.nil?
         entry.delete_file
         Logger.info "Deleted Entry ID `#{eid}` of `#{title.title}`"
+        Library.default.scan
+      rescue e
+        Logger.error e
+        send_json env, {
+          "success" => false,
+          "error"   => e.message,
+        }.to_json
+      else
+        send_json env, {"success" => true}.to_json
+      end
+    end
+
+    Koa.describe "Moves a title with `tid`"
+    Koa.tags ["admin", "library"]
+    Koa.path "tid", desc: "Title ID"
+    Koa.path "eid", desc: "Entry ID"
+    Koa.body schema: {
+      "target" => String,
+    }, desc: "New location"
+    Koa.response 200, schema: "result"
+    post "/api/admin/title/move/:tid/:eid" do |env|
+      begin
+        tid = env.params.url["tid"]
+        eid = env.params.url["eid"]
+        title = Library.default.get_title tid
+        raise "Title ID `#{tid}` not found" if title.nil?
+        entry = title.get_entry eid
+        raise "Entry ID `#{eid}` of `#{title.title}` not found" if entry.nil?
+        target = env.params.json["target"].as String
+        entry.move_file_or_folder(target)
+        Logger.info "Moved Entry ID `#{eid}` of `#{title.title}`"
         Library.default.scan
       rescue e
         Logger.error e

@@ -68,6 +68,8 @@ function showModal(
     `${base_url}api/download/${titleID}/${entryID}`,
   );
 
+  removeEvents("modal-delete-btn");
+
   $('#modal-delete-btn').click(function () {
     let url = `${base_url}api/admin/title/delete/${titleID}/${entryID}`;
     $.ajax({
@@ -88,6 +90,42 @@ function showModal(
       });
   });
 
+  removeEvents("move-select");
+
+  $('#move-select').on('change', () => {
+    const selectElement = document.getElementById('move-select');
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    if(!selectedOption.value) {
+      return;
+    }
+    console.log(selectedOption.value);
+    $.ajax({
+        type: 'POST',
+        url: `${location.protocol}//${location.host}${base_url}api/admin/title/move/${titleID}/${entryID}`,
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({
+            target: selectedOption.value
+        }),
+    })
+        .done((data) => {
+            if (data.error) {
+                alert(
+                    'danger',
+                    `Failed to get titles. Error: ${data.error}`,
+                );
+                return;
+            }
+            location.reload();
+        })
+        .fail((jqXHR, status) => {
+            alert(
+                'danger',
+                `Failed to delete entries. Error: [${jqXHR.status}] ${jqXHR.statusText}`,
+            );
+        });
+});
+
   UIkit.modal($('#modal')).show();
 }
 
@@ -95,6 +133,14 @@ UIkit.util.on(document, 'hidden', '#modal', () => {
   $('#read-btn').off('click');
   $('#unread-btn').off('click');
 });
+
+const removeEvents = (id) => {
+  const element = document.getElementById(id);
+
+  // Clone the element to remove all event listeners
+  const newElement = element.cloneNode(true);
+  element.parentNode.replaceChild(newElement, element);
+}
 
 const updateProgress = (tid, eid, page) => {
   let url = `${base_url}api/progress/${tid}/${page}`;
